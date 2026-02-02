@@ -55,6 +55,12 @@ void terminal_putchar(char c) {
 }
 
 void terminal_write(const char* data, size_t size) {
+    char prefix[] = "Femboy adham says: ";
+    size_t length = strlen(prefix);
+    for(size_t j = 0; j < length; j++){
+        terminal_putchar(prefix[j]);
+    }
+
     for (size_t i = 0; i < size; i++) {
         terminal_putchar(data[i]);
     }

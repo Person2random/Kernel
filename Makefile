@@ -1,8 +1,5 @@
-default:
-	make clean
-	make build
-	make run
-	make clean
+default: clean build run clean
+
 build:
 	i686-elf-as boot.s -o boot.o
 	i686-elf-as -32 gdtflush.s -o gdtflush.o
