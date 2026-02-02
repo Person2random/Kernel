@@ -26,9 +26,9 @@ extern uint8_t kernel_stack[];
 
 void kernel_main(void){
     terminal_initialize();
-    terminal_writestring("Hello, World\n");
+    terminal_writestring("Will init GDT\n");
     gdt_init();
-    terminal_writestring("Finna crash out if gdt isnt init");
+    terminal_writestring("GDT initialized\n");
     
     while (1)
     {
