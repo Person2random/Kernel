@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "vga.h"
-
+#include "gdt.h"
 
 
 
@@ -20,7 +20,19 @@ void* memcpy(void* dst, const void* src, size_t n) {
     return dst;
 }
 
+
+uint8_t kernel_stack[16384];
+extern uint8_t kernel_stack[];
+
 void kernel_main(void){
     terminal_initialize();
     terminal_writestring("Hello, World\n");
+    gdt_init();
+    terminal_writestring("Finna crash out if gdt isnt init");
+    
+    while (1)
+    {
+        __asm__ volatile("hlt");
+    }
+    
 }
