@@ -3,7 +3,10 @@
 #include <stdint.h>
 #include "vga.h"
 #include "gdt.h"
-
+#include "isr.h"
+#include "idt.h"
+//Keep in kernel.c will be useful
+//Convert integer to any base
 
 
 //important memory functions i probably dont understand
@@ -22,58 +25,30 @@ void* memcpy(void* dst, const void* src, size_t n) {
 
 
 
-//Will add IDT implementation
+void iitoa(int value, char* str, int base) {
+    char* ptr = str, *ptr1 = str, tmp_char;
+    int tmp_value;
 
-//TODO: Put IDT in different .h and .c files to avoid clutter
-struct idt_entry {
-    uint16_t offset_low;   // lower 16 bits of handler address
-    uint16_t selector;     // kernel code segment selector
-    uint8_t  zero;         // always 0
-    uint8_t  type_attr;    // flags
-    uint16_t offset_high;  // upper 16 bits of handler address
-} __attribute__((packed));
-
-
-struct idt_ptr {
-    uint16_t limit;
-    uint32_t base;
-} __attribute__((packed));
-
-#define IDT_ENTRIES 256
-
-struct idt_entry idt[IDT_ENTRIES];
-struct idt_ptr idtp;
-extern void idt_load(uint32_t);
-extern void isr0(void);
-
-//Function to set one entry
-void idt_set_gate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags) {
-    idt[num].offset_low  = base & 0xFFFF;
-    idt[num].selector    = selector;
-    idt[num].zero        = 0;
-    idt[num].type_attr   = flags;
-    idt[num].offset_high = (base >> 16) & 0xFFFF;
-}
-
-
-
-void idt_init() {
-    idtp.limit = sizeof(idt) - 1;
-    idtp.base  = (uint32_t)&idt;
-
-    // clear table
-    for (int i = 0; i < IDT_ENTRIES; i++) {
-        idt_set_gate(i, 0, 0, 0);
+    if (value == 0) {
+        *ptr++ = '0';
+        *ptr = '\0';
+        return;
     }
-    idt_set_gate(0, (uint32_t)isr0, 0x08, 0x8E);
 
-    idt_load((uint32_t)&idtp);
+    while (value != 0) {
+        tmp_value = value % base;
+        *ptr++ = (tmp_value < 10) ? (tmp_value + '0') : (tmp_value - 10 + 'A');
+        value /= base;
+    }
+    *ptr-- = '\0';
+
+    // reverse the string
+    while(ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr--= *ptr1;
+        *ptr1++ = tmp_char;
+    }
 }
-
-
-
-
-
 
 
 
@@ -86,9 +61,19 @@ void kernel_main(void){
     terminal_writestring("GDT initialized\n");
     terminal_writestring("Will init IDT\n");
     idt_init();
-    terminal_writestring("IDT initialized\n");
+    isr_init();
+    int i = 0;
+    while (1)
+    {
+        char buf[20];
+        iitoa(i,buf,10);
+        terminal_writestring(buf);
+        terminal_writestring("\n");
+        i++;
+    }
     
     
+
     while (1)
     {
         __asm__ volatile("hlt");

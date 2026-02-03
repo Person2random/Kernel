@@ -3,6 +3,13 @@
 /* VGA memory address */
 #define VGA_MEMORY 0xB8000
 
+void* mmemset(void* dst, int v, size_t n) {
+    unsigned char* p = dst;
+    while (n--) *p++ = (unsigned char)v;
+    return dst;
+}
+
+
 /* Terminal state */
 size_t terminal_row;
 size_t terminal_column;
@@ -35,6 +42,11 @@ void terminal_setcolor(uint8_t color) {
 }
 
 void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) {
+    if(terminal_row == 25){
+        terminal_row = 0;
+        terminal_column = 0;
+        mmemset(terminal_buffer,0,4000);
+    }
     const size_t index = y * VGA_WIDTH + x;
     terminal_buffer[index] = vga_entry(c, color);
 }
@@ -55,12 +67,6 @@ void terminal_putchar(char c) {
 }
 
 void terminal_write(const char* data, size_t size) {
-    char prefix[] = "Femboy adham says: ";
-    size_t length = strlen(prefix);
-    for(size_t j = 0; j < length; j++){
-        terminal_putchar(prefix[j]);
-    }
-
     for (size_t i = 0; i < size; i++) {
         terminal_putchar(data[i]);
     }
