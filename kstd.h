@@ -3,6 +3,7 @@
 #ifndef KSTD_H
 #define KSTD_H
 extern volatile uint64_t ticks;
+extern volatile uint8_t waitmode;
 void* memset(void* dst, int v, size_t n);
 void* memcpy(void* dst, const void* src, size_t n);
 void wait(int seconds);

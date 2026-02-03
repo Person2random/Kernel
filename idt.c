@@ -43,10 +43,12 @@ extern void irq1_handler(void);
 void irq1_handler(void) {
     uint8_t sc = inb(0x60);
     terminal_putchar('K'); // or print scancode
+    outb(PIC1,0x20);
 }
 
 void irq0_handler(void) {
     ticks++;
+    outb(PIC1,0x20);
 }
 
 

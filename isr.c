@@ -55,7 +55,7 @@ void isr_init(void) {
 
 // Minimal ISR handler
 void isr_handler(int num) {
-    terminal_writestring("Exception occurred: ");
+    terminal_writestring("Kernel panic: ");
     char buf[4];
     itoa(num, buf, 10);
     terminal_writestring(buf);

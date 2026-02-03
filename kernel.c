@@ -12,7 +12,7 @@ extern uint8_t kernel_stack[];
 void kernel_main(void){
     terminal_initialize();
     femboysay("Will init GDT\n");
-    gdt_init();
+    gdt_init();a
     femboysay("GDT initialized\n");
     femboysay("Will init IDT\n");
     idt_init();
@@ -24,8 +24,16 @@ void kernel_main(void){
     outb(0x21, 0xFC); // unmask timer + keyboard
     outb(0xA1, 0xFF); // mask all IRQs on slavep
     femboysay("Done.\n");
+    femboysay("Will change PIT divisor\n");
+    uint16_t divisor = 1193;
+    outb(0x43,0x36);
+    outb(0x40,divisor & 0xFF);
+    outb(0x40,(divisor >> 8)&0xFF);
+    waitmode = 1;
+    femboysay("Accurate timing implemented\n")
     femboysay("Will enable interrupts\n");
     __asm__ volatile("sti");
+    wait(1);
     femboysay("Interrupts enabled \n");
     while (1)
     {
