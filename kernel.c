@@ -6,13 +6,6 @@
 #include "isr.h"
 #include "idt.h"
 #include "kstd.h"
-//Keep in kernel.c will be useful
-//Convert integer to any base
-
-//important memory functions i probably dont understand
-
-
-
 
 uint8_t kernel_stack[16384];
 extern uint8_t kernel_stack[];

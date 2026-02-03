@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "idt.h"
-volatile uint32_t ticks = 0;
+volatile uint64_t ticks = 0;
 void* memset(void* dst, int v, size_t n) {
     unsigned char* p = dst;
     while (n--) *p++ = (unsigned char)v;

@@ -1,3 +1,4 @@
+#include "kstd.h"
 #include "idt.h"
 #include "vga.h"
 #include <stdint.h>
@@ -6,18 +7,6 @@ struct idt_ptr idtp;
 extern void idt_load(uint32_t);
 extern void irq0(void);
 extern void irq1(void);
-// Write a byte to a port
-inline void outb(uint16_t port, uint8_t val) {
-    __asm__ volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
-}
-
-// Read a byte from a port
-inline uint8_t inb(uint16_t port) {
-    uint8_t ret;
-    __asm__ volatile ("inb %1, %0" : "=a"(ret) : "Nd"(port));
-    return ret;
-}
-
 
 #define PIC1        0x20
 #define PIC2        0xA0

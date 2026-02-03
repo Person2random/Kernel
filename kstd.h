@@ -1,5 +1,8 @@
+#include <stdint.h>
+#include <stddef.h>
 #ifndef KSTD_H
 #define KSTD_H
+extern volatile uint64_t ticks;
 void* memset(void* dst, int v, size_t n);
 void* memcpy(void* dst, const void* src, size_t n);
 void wait(int seconds);
