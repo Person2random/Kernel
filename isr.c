@@ -1,32 +1,7 @@
 #include "idt.h"
 #include "vga.h"
 #include "gdt.h"   // if needed
-
-
-void itoa(int value, char* str, int base) {
-    char* ptr = str, *ptr1 = str, tmp_char;
-    int tmp_value;
-
-    if (value == 0) {
-        *ptr++ = '0';
-        *ptr = '\0';
-        return;
-    }
-
-    while (value != 0) {
-        tmp_value = value % base;
-        *ptr++ = (tmp_value < 10) ? (tmp_value + '0') : (tmp_value - 10 + 'A');
-        value /= base;
-    }
-    *ptr-- = '\0';
-
-    // reverse the string
-    while(ptr1 < ptr) {
-        tmp_char = *ptr;
-        *ptr--= *ptr1;
-        *ptr1++ = tmp_char;
-    }
-}
+#include "kstd.h"
 
 
 // Declare all 32 ISR stubs from your assembly file

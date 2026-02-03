@@ -23,8 +23,9 @@ extern struct idt_entry idt[IDT_ENTRIES];
 extern struct idt_ptr idtp;
 
 // Functions
+extern volatile uint32_t ticks;
 void idt_init(void);
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags);
 extern void idt_load(uint32_t);
-
+void pic_remap(void);
 #endif
