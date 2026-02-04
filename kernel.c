@@ -17,9 +17,10 @@ void kernel_main(void){
     femboysay("GDT initialized\n");
     femboysay("Will init IDT\n");
     idt_init();
+    isr_init();
     femboysay("IDT initialized\n");
     femboysay("Will remap PIC\n");
-    //pic_remap();
+    pic_remap();
     femboysay("PIC remapped\n");
     femboysay("Will unmask/mask\n");
     outb(0x21, 0xFC); // unmask timer + keyboard

@@ -31,4 +31,4 @@ build:
 run:
 	qemu-system-i386 -kernel myos
 clean:
-	rm -rf boot.o isodir kernel.o myos myos.iso	terminal.o gdt.o gdtflush.o loadidt.o isr0.o idt.o isr.o irq.o kstd.o
+	rm -rf boot.o isodir kernel.o myos myos.iso	terminal.o gdt.o gdtflush.o loadidt.o isr0.o idt.o isr.o irq.o kstd.o console.o
