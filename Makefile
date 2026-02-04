@@ -17,9 +17,11 @@ build:
 	i686-elf-gcc -c isr.c -o isr.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 	i686-elf-gcc -c idt.c -o idt.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 	i686-elf-gcc -c kstd.c -o kstd.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	i686-elf-gcc -c	console.c -o console.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+
 
 	i686-elf-gcc -T linker.ld -o myos -ffreestanding -O2 -nostdlib \
-		boot.o kernel.o terminal.o gdt.o gdtflush.o loadidt.o isr0.o isr.o idt.o irq.o kstd.o -lgcc
+		boot.o kernel.o terminal.o gdt.o gdtflush.o loadidt.o isr0.o isr.o idt.o irq.o kstd.o console.o -lgcc
 
 	mkdir -p isodir/boot/grub
 	cp myos isodir/boot/myos

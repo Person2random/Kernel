@@ -7,18 +7,19 @@
 #include "idt.h"
 #include "kstd.h"
 
+
 uint8_t kernel_stack[16384];
 extern uint8_t kernel_stack[];
 void kernel_main(void){
     terminal_initialize();
     femboysay("Will init GDT\n");
-    gdt_init();a
+    gdt_init();
     femboysay("GDT initialized\n");
     femboysay("Will init IDT\n");
     idt_init();
     femboysay("IDT initialized\n");
     femboysay("Will remap PIC\n");
-    pic_remap();
+    //pic_remap();
     femboysay("PIC remapped\n");
     femboysay("Will unmask/mask\n");
     outb(0x21, 0xFC); // unmask timer + keyboard
@@ -30,11 +31,12 @@ void kernel_main(void){
     outb(0x40,divisor & 0xFF);
     outb(0x40,(divisor >> 8)&0xFF);
     waitmode = 1;
-    femboysay("Accurate timing implemented\n")
+    femboysay("Accurate timing implemented\n");
     femboysay("Will enable interrupts\n");
     __asm__ volatile("sti");
     wait(1);
     femboysay("Interrupts enabled \n");
+    volatile int x = 1/0;
     while (1)
     {
         __asm__ volatile("hlt"); 

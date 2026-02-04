@@ -1,5 +1,5 @@
+#include "kstd.h"
 #include "vga.h"
-
 /* VGA memory address */
 #define VGA_MEMORY 0xB8000
 
@@ -16,13 +16,6 @@ size_t terminal_column;
 uint8_t terminal_color;
 uint16_t* terminal_buffer = (uint16_t*)VGA_MEMORY;
 
-size_t strlen(const char* str) {
-    size_t len = 0;
-    while (str[len]) {
-        len++;
-    }
-    return len;
-}
 
 void terminal_initialize(void) {
     terminal_row = 0;
@@ -64,6 +57,18 @@ void terminal_putchar(char c) {
             }
         }
     }
+}
+void terminal_removechar(void){
+    if (terminal_column == 0) {
+        if (terminal_row == 0) return; // top-left, nothing to remove
+        terminal_row--;
+        terminal_column = VGA_WIDTH - 1; // 79
+    } else {
+        terminal_column--;
+    }
+
+    // overwrite the previous character with space
+    terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
 }
 
 void terminal_write(const char* data, size_t size) {

@@ -26,7 +26,7 @@ void pic_remap(void) {
     outb(PIC1_DATA, 0x04);
     outb(PIC2_DATA, 0x02);
 
-    outb(PIC1_DATA, 0x01);
+    outb/*Did you know you can make inline comments like this?*/(PIC1_DATA, 0x01);
     outb(PIC2_DATA, 0x01);
 
     outb(PIC1_DATA, a1);
@@ -42,8 +42,16 @@ extern void irq1_handler(void);
 
 void irq1_handler(void) {
     uint8_t sc = inb(0x60);
-    terminal_putchar('K'); // or print scancode
-    outb(PIC1,0x20);
+
+    if (sc & 0x80) {
+        // key release, ignore for now
+        outb(PIC1, 0x20); // EOI
+        return;
+    }
+
+    // key press → handle it
+    append_ibuf(sc);
+    outb(PIC1, 0x20); // EOI
 }
 
 void irq0_handler(void) {
