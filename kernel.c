@@ -6,38 +6,39 @@
 #include "isr.h"
 #include "idt.h"
 #include "kstd.h"
+#include "paging.h"
 
-
-uint8_t kernel_stack[16384];
 extern uint8_t kernel_stack[];
+// GDT flush expects this symbol; reserve a 16 KiB kernel stack.
+uint8_t kernel_stack[16384] __attribute__((aligned(16)));
 void kernel_main(void){
     terminal_initialize();
-    femboysay("Will init GDT\n");
+    terminal_writestring("Will init GDT\n");
     gdt_init();
-    femboysay("GDT initialized\n");
-    femboysay("Will init IDT\n");
+    terminal_writestring("GDT initialized\n");
+    terminal_writestring("Will init IDT\n");
     idt_init();
     isr_init();
-    femboysay("IDT initialized\n");
-    femboysay("Will remap PIC\n");
+    terminal_writestring("IDT initialized\n");
+    terminal_writestring("Will remap PIC\n");
     pic_remap();
-    femboysay("PIC remapped\n");
-    femboysay("Will unmask/mask\n");
+    terminal_writestring("PIC remapped\n");
+    terminal_writestring("Will unmask/mask\n");
     outb(0x21, 0xFC); // unmask timer + keyboard
     outb(0xA1, 0xFF); // mask all IRQs on slavep
-    femboysay("Done.\n");
-    femboysay("Will change PIT divisor\n");
+    terminal_writestring("Done.\n");
+    terminal_writestring("Will change PIT divisor\n");
     uint16_t divisor = 1193;
     outb(0x43,0x36);
     outb(0x40,divisor & 0xFF);
     outb(0x40,(divisor >> 8)&0xFF);
     waitmode = 1;
-    femboysay("Accurate timing implemented\n");
-    femboysay("Will enable interrupts\n");
+    terminal_writestring("Accurate timing implemented\n");
+    terminal_writestring("Will enable interrupts\n");
     __asm__ volatile("sti");
     wait(1);
-    femboysay("Interrupts enabled \n");
-    volatile int x = 1/0;
+    terminal_writestring("Interrupts enabled \n");
+    init_paging();
     while (1)
     {
         __asm__ volatile("hlt"); 

@@ -59,6 +59,16 @@ const char scancode_to_ascii[128] = {
 };
 
 
+// kstd.c
+void panic(const char *msg) {
+      terminal_writestring("KERNEL PANIC: ");
+      terminal_writestring(msg);
+      terminal_writestring("\n");
+      __asm__ volatile("cli");
+      while (1) { __asm__ volatile("hlt"); }
+}
+
+
 size_t strlen(const char* str) {
     size_t len = 0;
     while (str[len]) {
@@ -70,9 +80,10 @@ size_t strlen(const char* str) {
 size_t read_ibuf(uint8_t *buf){
     size_t len = strlen(inputbuf);
     size_t i = 0;
-    while(i > len)
+    while(i < len)
     {
         buf[i] = inputbuf[i];
+        i++;
     }
     return i;
     
@@ -87,7 +98,7 @@ void append_ibuf(uint8_t c){
         return;
     }
 
-    if(c == 14){
+    if(c == 14 && index > 0){
         inputbuf[index] = 0;
         char buf[1];
         buf[0] = scancode_to_ascii[inputbuf[index]];

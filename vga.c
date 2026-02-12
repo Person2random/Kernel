@@ -82,7 +82,3 @@ void terminal_writestring(const char* data) {
 }
 
 
-void femboysay(const char* data) {
-    terminal_writestring("Femboy Adham says: ");
-    terminal_write(data, strlen(data));
-}

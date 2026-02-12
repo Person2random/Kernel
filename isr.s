@@ -3,48 +3,64 @@
 .section .text
 .extern isr_handler
 
-.macro ISR num
+.macro ISR_NOERR num
 .global isr\num
 isr\num:
     pushad
     pushfd
-    push \num
+    push 0          // err code
+    push \num       // isr number
     call isr_handler
-    add esp, 4
+    add esp, 8
     popfd
     popad
     iret
 .endm
 
-ISR 0
-ISR 1
-ISR 2
-ISR 3
-ISR 4
-ISR 5
-ISR 6
-ISR 7
-ISR 8
-ISR 9
-ISR 10
-ISR 11
-ISR 12
-ISR 13
-ISR 14
-ISR 15
-ISR 16
-ISR 17
-ISR 18
-ISR 19
-ISR 20
-ISR 21
-ISR 22
-ISR 23
-ISR 24
-ISR 25
-ISR 26
-ISR 27
-ISR 28
-ISR 29
-ISR 30
-ISR 31
+.macro ISR_ERR num
+.global isr\num
+isr\num:
+    pushad
+    pushfd
+    push dword ptr [esp + 36] // err code
+    push \num                 // isr number
+    call isr_handler
+    add esp, 8
+    popfd
+    popad
+    add esp, 4  // discard error code
+    iret
+.endm
+
+ISR_NOERR 0
+ISR_NOERR 1
+ISR_NOERR 2
+ISR_NOERR 3
+ISR_NOERR 4
+ISR_NOERR 5
+ISR_NOERR 6
+ISR_NOERR 7
+ISR_ERR   8
+ISR_NOERR 9
+ISR_ERR   10
+ISR_ERR   11
+ISR_ERR   12
+ISR_ERR   13
+ISR_ERR   14
+ISR_NOERR 15
+ISR_NOERR 16
+ISR_ERR   17
+ISR_NOERR 18
+ISR_NOERR 19
+ISR_NOERR 20
+ISR_NOERR 21
+ISR_NOERR 22
+ISR_NOERR 23
+ISR_NOERR 24
+ISR_NOERR 25
+ISR_NOERR 26
+ISR_NOERR 27
+ISR_NOERR 28
+ISR_NOERR 29
+ISR_NOERR 30
+ISR_NOERR 31

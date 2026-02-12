@@ -54,11 +54,31 @@ void isr_init(void) {
 }
 
 // Minimal ISR handler
-void isr_handler(int num) {
-    terminal_writestring("Kernel panc: ");
-    char buf[4];
+void isr_handler(int num, uint32_t err) {
+    terminal_writestring("Kernel interrupt: ");
+    char buf[16];
     itoa(num, buf, 10);
     terminal_writestring(buf);
+
+    if (num == 14) {
+        uint32_t cr2;
+        __asm__ volatile("mov %%cr2, %0" : "=r"(cr2));
+        terminal_writestring(" PF addr=0x");
+        itoa((int)cr2, buf, 16);
+        terminal_writestring(buf);
+        terminal_writestring(" err=0x");
+        itoa((int)err, buf, 16);
+        terminal_writestring(buf);
+
+        terminal_writestring(" [");
+        terminal_writestring((err & 0x1) ? "P" : "NP");
+        terminal_writestring((err & 0x2) ? "|W" : "|R");
+        terminal_writestring((err & 0x4) ? "|U" : "|S");
+        terminal_writestring((err & 0x8) ? "|RSVD" : "");
+        terminal_writestring((err & 0x10) ? "|IF" : "");
+        terminal_writestring("]");
+    }
+
     terminal_writestring("\n");
     while (1) { __asm__ volatile("hlt"); }
 }

@@ -14,4 +14,6 @@ void wait(int seconds);
 void itoa(int value, char* str, int base);
 void outb(uint16_t port, uint8_t val);
 uint8_t inb(uint16_t port);
+void set_kernel_stack();
+void panic(const char *msg) __attribute__((noreturn));
 #endif
