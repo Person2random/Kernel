@@ -16,6 +16,17 @@ size_t terminal_column;
 uint8_t terminal_color;
 uint16_t* terminal_buffer = (uint16_t*)VGA_MEMORY;
 
+void vga_move_cursor(uint16_t row, uint16_t col) {
+    uint16_t pos = row * VGA_WIDTH + col;
+
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (uint8_t)(pos & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+}
+
+
+
 
 void terminal_initialize(void) {
     terminal_row = 0;
@@ -57,6 +68,7 @@ void terminal_putchar(char c) {
             }
         }
     }
+    vga_move_cursor(terminal_row,terminal_column);
 }
 void terminal_removechar(void){
     if (terminal_column == 0) {
@@ -66,7 +78,7 @@ void terminal_removechar(void){
     } else {
         terminal_column--;
     }
-
+    vga_move_cursor(terminal_row,terminal_column);
     // overwrite the previous character with space
     terminal_putentryat(' ', terminal_color, terminal_column, terminal_row);
 }
@@ -82,3 +94,7 @@ void terminal_writestring(const char* data) {
 }
 
 
+void femboysay(const char* data){
+    terminal_writestring("Femboy adham says: ");
+    terminal_writestring(data);
+}

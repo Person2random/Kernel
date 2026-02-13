@@ -3,11 +3,21 @@
 #include "idt.h"
 #include "vga.h"
 #include "console.h"
-volatile uint64_t ticks = 0;
+volatile uint32_t ticks = 0;
 volatile uint8_t waitmode = 0;
 volatile char inputbuf[128] = {};
 volatile uint8_t index = 0;
+typedef void (*out_cb_t)(char *buf);
 
+static out_cb_t out = NULL;
+
+void changeout(out_cb_t cb) {
+    out = cb;
+}
+
+void resetout(void) {
+    out = NULL;
+}
 
 
 void* memset(void* dst, int v, size_t n) {
@@ -88,38 +98,45 @@ size_t read_ibuf(uint8_t *buf){
     return i;
     
 }
+void append_ibuf(uint8_t sc)
+{
+    char ch = scancode_to_ascii[sc];
 
-void append_ibuf(uint8_t c){
-    if(scancode_to_ascii[c] == '\n'){
+    // Enter pressed -> finalize line
+    if (ch == '\n') {
         terminal_writestring("\n");
-        handle_input(inputbuf);
-        memset(inputbuf,0,128);
+
+        if (out == NULL) {
+            handle_input(inputbuf);
+        } else {
+            out(inputbuf);
+        }
+
+        memset(inputbuf, 0, 128);
         index = 0;
         return;
     }
 
-    if(c == 14 && index > 0){
-        inputbuf[index] = 0;
-        char buf[1];
-        buf[0] = scancode_to_ascii[inputbuf[index]];
-        terminal_writestring(buf);
-        index--;
-        terminal_removechar();
+    // Backspace (scancode 14 is typical for PS/2 set 1)
+    if (sc == 14) {
+        if (index > 0) {
+            index--;
+            inputbuf[index] = 0;
+            terminal_removechar();   // assumes this erases last char on screen
+        }
         return;
     }
-    if(index < 128){
-        inputbuf[index] = scancode_to_ascii[c];
-        index++;
-        terminal_putchar(scancode_to_ascii[c]);        
-        return;
 
-    }
-    else{
-        memset(inputbuf,0,128);
+    // Normal character append
+    if (index < 127) { // keep room for '\0'
+        inputbuf[index++] = ch;
+        inputbuf[index] = 0;        // keep it a valid C-string
+        terminal_putchar(ch);
+    } else {
+        // overflow policy: reset (your choice)
+        memset(inputbuf, 0, 128);
         index = 0;
-        return;
     }
-    
 }
 
 

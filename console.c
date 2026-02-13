@@ -9,4 +9,9 @@ void handle_input(char *input){
         terminal_writestring("Hello, World\n");
         return;
     }
+    if(strcmp(buf,"yousef")){
+        terminal_writestring("Yousef is 5awal and metnak\n");
+        return;
+    }
+    terminal_writestring("Invalid command\n");
 }
