@@ -12,6 +12,7 @@ extern uint8_t kernel_stack[];
 // GDT flush expects this symbol; reserve a 16 KiB kernel stack.
 uint8_t kernel_stack[16384] __attribute__((aligned(16)));
 void kernel_main(void){
+    uint64_t max[400000];
     terminal_initialize();
     femboysay("Welcome to eOS, Epstein OS\n");
     femboysay("Will init GDT\n");
