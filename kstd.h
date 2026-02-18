@@ -16,6 +16,6 @@ void outb(uint16_t port, uint8_t val);
 uint8_t inb(uint16_t port);
 void set_kernel_stack();
 void panic(const char *msg) __attribute__((noreturn));
-void changeout(void (*cb)(char* buf));
+void changeout(void (*cb)(char* buf),size_t index);
 void resetout();
 #endif

@@ -7,6 +7,7 @@
 #include "idt.h"
 #include "kstd.h"
 #include "paging.h"
+#include "console.h"
 
 extern uint8_t kernel_stack[];
 // GDT flush expects this symbol; reserve a 16 KiB kernel stack.
@@ -43,7 +44,7 @@ void kernel_main(void){
     femboysay("Will init paging\n");
     init_paging();
     femboysay("Paging init\n");
-    
+    changeout(handle_shell,0);
     while (1)
     {
         __asm__ volatile("hlt"); 

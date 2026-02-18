@@ -4,7 +4,7 @@ extern uint8_t _kernel_end[];
 extern uint8_t _kernel_start[];
 
 
-void handle_input(char *input){
+void handle_shell(char *input){
     size_t len = strlen(input);
     char buf[len+1];
     buf[len] = '\0';
