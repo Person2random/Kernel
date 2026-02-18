@@ -8,11 +8,14 @@ volatile uint8_t waitmode = 0;
 volatile char inputbuf[128] = {};
 volatile uint8_t index = 0;
 typedef void (*out_cb_t)(char *buf);
+uint8_t active_tty = 0;
+volatile out_cb_t callbacks[3];
 
 static out_cb_t out = NULL;
 
-void changeout(out_cb_t cb) {
-    out = cb;
+void changeout(out_cb_t cb, size_t index) {
+    if(index < 3)
+    callbacks[index] = cb;
 }
 
 void resetout(void) {
@@ -100,17 +103,25 @@ size_t read_ibuf(uint8_t *buf){
 }
 void append_ibuf(uint8_t sc)
 {
+    if(sc == 61){
+        terminal_writestring("Switching\n");
+        if(active_tty == 2){
+            active_tty = 0;
+        }
+        else {
+            active_tty++;
+        }
+    }
+    if(callbacks[active_tty] == NULL) return;
+
     char ch = scancode_to_ascii[sc];
+    
 
     // Enter pressed -> finalize line
     if (ch == '\n') {
         terminal_writestring("\n");
 
-        if (out == NULL) {
-            handle_input(inputbuf);
-        } else {
-            out(inputbuf);
-        }
+        callbacks[active_tty](inputbuf);
 
         memset(inputbuf, 0, 128);
         index = 0;
