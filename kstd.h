@@ -17,5 +17,7 @@ uint8_t inb(uint16_t port);
 void set_kernel_stack();
 void panic(const char *msg) __attribute__((noreturn));
 void changeout(void (*cb)(char* buf),size_t index);
-void resetout();
+int split(char* str, char delimiter, char* tokens[], int max_tokens);
+int stoia(char *buf);
+extern uint8_t active_tty;
 #endif

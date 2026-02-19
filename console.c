@@ -26,6 +26,36 @@ void handle_shell(char *input){
         terminal_writestring(" Bytes big\n");
         return;
     }
+    if(strcmp(buf,"nigger")){
+        terminal_writestring("Syfm youre getting your terminal rights revoked\n");
+        changeout(NULL,0);
+        return;
+    }
+
+    char* tokens[20];
+    size_t count = split(input,' ',tokens,20);
+    if(count > 0 && strcmp(tokens[0],"current")){
+            char a[2];
+            itoa(active_tty,a,10);
+            terminal_writestring(a);
+            terminal_writestring("\n");
+            return;
+    }
+    
+    if (count > 0 && strcmp(tokens[0], "shell")) {
+        if (count < 2) {
+            terminal_writestring("Usage: <num>");
+            return;
+        }
+        int shell_num = stoia(tokens[1]);
+        if (shell_num > 2) {
+            terminal_writestring("Invalid argument\n");
+            return;
+        }
+        changeout(handle_shell, shell_num);
+        return;
+    }
+    
 
     
     terminal_writestring("Invalid command\n");
