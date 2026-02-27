@@ -2,7 +2,7 @@
 #include "vga.h"
 #include "gdt.h"   // if needed
 #include "kstd.h"
-
+#include "paging.h"
 
 // Declare all 32 ISR stubs from your assembly file
 extern void isr0(void);
@@ -77,6 +77,21 @@ void isr_handler(int num, uint32_t err) {
         terminal_writestring((err & 0x8) ? "|RSVD" : "");
         terminal_writestring((err & 0x10) ? "|IF" : "");
         terminal_writestring("]");
+
+        if (cr2 >= HEAP_BASE && cr2 < HEAP_LIMIT) {
+            uint32_t fault_addr = cr2;
+            uint32_t pde_index = fault_addr >> 22;
+            uint32_t pte_index = (fault_addr >> 12) & 0x3FF;
+            uint32_t phys = alloc_4mb_chunk();
+
+            page_directory[pde_index] = phys | 0x83;
+
+            // Flush TLB
+            __asm__ volatile("mov %%cr3, %%eax; mov %%eax, %%cr3" ::: "eax");
+
+            terminal_writestring(" Heap page mapped\n");
+            return;
+        }
     }
 
     terminal_writestring("\n");

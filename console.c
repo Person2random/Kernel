@@ -26,11 +26,6 @@ void handle_shell(char *input){
         terminal_writestring(" Bytes big\n");
         return;
     }
-    if(strcmp(buf,"nigger")){
-        terminal_writestring("Syfm youre getting your terminal rights revoked\n");
-        changeout(NULL,0);
-        return;
-    }
 
     char* tokens[20];
     size_t count = split(input,' ',tokens,20);
