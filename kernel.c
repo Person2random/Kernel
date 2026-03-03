@@ -12,7 +12,11 @@
 extern uint8_t kernel_stack[];
 // GDT flush expects this symbol; reserve a 16 KiB kernel stack.
 uint8_t kernel_stack[16384] __attribute__((aligned(16)));
-void kernel_main(void){
+void kernel_main(uint32_t magic, void* mb_info){
+    if (magic != 0x2BADB002) {
+        terminal_writestring("Not booted with multiboot2!\n");
+        while (1);
+    }
     uint64_t max[400000];
     terminal_initialize();
     femboysay("Welcome to eOS, Epstein OS\n");
@@ -44,6 +48,10 @@ void kernel_main(void){
     femboysay("Will init paging\n");
     init_paging();
     femboysay("Paging init\n");
+    volatile uint32_t *x = (uint32_t*)0x00300000;
+    *x = 0xDEADBEEF;
+    terminal_writestring("4KB identity mapping works\n");
+    kmalloc(400000);
     changeout(handle_shell,0);
     while (1)
     {
