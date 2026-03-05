@@ -1,3 +1,4 @@
+#include "pmm.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -8,18 +9,25 @@
 #include "kstd.h"
 #include "paging.h"
 #include "console.h"
-
+#include "multiboot.h"
 extern uint8_t kernel_stack[];
 // GDT flush expects this symbol; reserve a 16 KiB kernel stack.
 uint8_t kernel_stack[16384] __attribute__((aligned(16)));
 void kernel_main(uint32_t magic, void* mb_info){
-    if (magic != 0x2BADB002) {
-        terminal_writestring("Not booted with multiboot2!\n");
-        while (1);
-    }
-    uint64_t max[400000];
     terminal_initialize();
-    femboysay("Welcome to eOS, Epstein OS\n");
+    if (magic != 0x2BADB002 && magic != 0x36D76289) {
+        terminal_writestring("Unknown boot magic, halting.\n");
+        while (1) __asm__ volatile("hlt");
+    }
+    pmm_init((uint32_t)mb_info);
+
+    uint32_t a = pmm_alloc_frame();
+    uint32_t b = pmm_alloc_frame();
+    uint32_t c = pmm_alloc_frame();
+
+
+    pmm_free_frame(b);
+    uint32_t d = pmm_alloc_frame();
     femboysay("Will init GDT\n");
     gdt_init();
     femboysay("GDT initialized\n");
@@ -43,15 +51,14 @@ void kernel_main(uint32_t magic, void* mb_info){
     femboysay("Accurate timing implemented\n");
     femboysay("Will enable interrupts\n");
     __asm__ volatile("sti");
-    wait(1);
+    kwait(1);
     femboysay("Interrupts enabled\n");
     femboysay("Will init paging\n");
     init_paging();
     femboysay("Paging init\n");
-    volatile uint32_t *x = (uint32_t*)0x00300000;
-    *x = 0xDEADBEEF;
-    terminal_writestring("4KB identity mapping works\n");
-    kmalloc(400000);
+    uint32_t* heap_test = (uint32_t*)0x40000000;
+    *heap_test = 1234;
+    terminal_writestring("Heap page allocated\n");
     changeout(handle_shell,0);
     while (1)
     {

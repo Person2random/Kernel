@@ -216,27 +216,19 @@ void* memcpy(void* dst, const void* src, size_t n) {
 //Depends on waitmode.
 //If waitmode is set to 0 it will count assuming the speed is 18.2 Hz
 //If waitmode is set to 1,The int passed = number of milliseconds to wait
-void wait(int seconds){
+void kwait  (int seconds){
     if(waitmode == 0){
-        uint64_t current = ticks;
-        uint64_t target = 18.2*seconds + current;
-        while (1)
-        {
-            if(ticks >= target){
-                break;
-            }
-        }
+        terminal_writestring("Waiting using waitmode 0 is decaprecated");
+        return;
     }
     else if (waitmode == 1)
     {
         uint64_t current = ticks;
         uint64_t target = current+seconds;
-        while (1)
+        while (ticks < target)
         {
-            if (ticks >= target)
-            {
-                break;
-            }
+
+            __asm__ volatile ("sti;hlt");
             
         }
            

@@ -3,7 +3,7 @@
 #include "gdt.h"   // if needed
 #include "kstd.h"
 #include "paging.h"
-
+#include "pmm.h"
 // Declare all 32 ISR stubs from your assembly file
 extern void isr0(void);
 extern void isr1(void);
@@ -46,6 +46,13 @@ static void (*isr_routines[32])(void) = {
     isr24, isr25, isr26, isr27, isr28, isr29, isr30, isr31
 };
 
+static inline void flush_tlb(void)
+{
+    uint32_t cr3;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(cr3));
+    __asm__ volatile("mov %0, %%cr3" :: "r"(cr3));
+}
+
 // Initialize IDT entries 0–31
 void isr_init(void) {
     for (uint8_t i = 0; i < 32; i++) {
@@ -76,20 +83,30 @@ void isr_handler(int num, uint32_t err) {
         terminal_writestring((err & 0x4) ? "|U" : "|S");
         terminal_writestring((err & 0x8) ? "|RSVD" : "");
         terminal_writestring((err & 0x10) ? "|IF" : "");
-        terminal_writestring("]");
+        terminal_writestring("]\n");
 
         if (cr2 >= HEAP_BASE && cr2 < HEAP_LIMIT) {
             uint32_t fault_addr = cr2;
+
             uint32_t pde_index = fault_addr >> 22;
             uint32_t pte_index = (fault_addr >> 12) & 0x3FF;
-            uint32_t phys = alloc_4mb_chunk();
 
-            page_directory[pde_index] = phys | 0x83;
+            if (!(page_directory[pde_index] & 1)) {
+                uint32_t pt_phys = pmm_alloc_frame();
+                memset((void*)pt_phys, 0, 4096);
 
-            // Flush TLB
-            __asm__ volatile("mov %%cr3, %%eax; mov %%eax, %%cr3" ::: "eax");
+                page_directory[pde_index] = pt_phys | 0x3;
+            }
 
-            terminal_writestring(" Heap page mapped\n");
+            uint32_t* page_table =
+                (uint32_t*)(page_directory[pde_index] & 0xFFFFF000);
+
+            if (!(page_table[pte_index] & 1)) {
+                uint32_t page_phys = pmm_alloc_frame();
+                page_table[pte_index] = page_phys | 0x3;
+            }
+
+            flush_tlb();
             return;
         }
     }
