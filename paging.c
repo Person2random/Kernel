@@ -8,10 +8,15 @@ uint32_t first_page_table[1024] __attribute__((aligned(4096)));
 static uint32_t placement = 0;
 static uint32_t heap_brk = HEAP_BASE;
 
+void* kmalloc(uint32_t size)
+{
+    size = (size + 7) & ~7;
 
-void* kmalloc(uint32_t size) {
     uint32_t addr = heap_brk;
     heap_brk += size;
+
+    if (heap_brk + size >= HEAP_LIMIT) panic("heap exhausted");
+
     return (void*)addr;
 }
 
