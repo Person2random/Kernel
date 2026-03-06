@@ -43,17 +43,17 @@ void handle_shell(char *input){
             terminal_writestring("Usage: <num>");
             return;
         }
-        int shell_num = stoia(tokens[1]);
-        if (shell_num > 2) {
+        int shell_num = stoi(tokens[1]);
+        if (shell_num > 19) {
             terminal_writestring("Invalid argument\n");
             return;
         }
-        changeout(handle_shell, shell_num);
+        setin(shell_num,handle_shell);
         return;
     }
     
     if (count > 1 && strcmp(tokens[0], "wait")){
-        int time = stoia(tokens[1]);  
+        int time = stoi(tokens[1]);  
         kwait(time); 
         return;
     }

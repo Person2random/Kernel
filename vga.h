@@ -59,4 +59,9 @@ void terminal_write(const char* data, size_t size);
 void terminal_writestring(const char* data);
 void femboysay(const char* data);
 void terminal_removechar(void);
+void vga_move_cursor(uint16_t row, uint16_t col);
+uint16_t vga_get_col();
+uint16_t vga_get_row();
+void vga_set_row(uint16_t row);
+void vga_set_col(uint16_t col);
 #endif /* TERMINAL_H */

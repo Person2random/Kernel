@@ -10,6 +10,7 @@
 #include "paging.h"
 #include "console.h"
 #include "multiboot.h"
+#include "tty.h"
 extern uint8_t kernel_stack[];
 // GDT flush expects this symbol; reserve a 16 KiB kernel stack.
 uint8_t kernel_stack[16384] __attribute__((aligned(16)));
@@ -59,7 +60,8 @@ void kernel_main(uint32_t magic, void* mb_info){
     uint32_t* heap_test = (uint32_t*)0x40000000;
     *heap_test = 1234;
     terminal_writestring("Heap page allocated\n");
-    changeout(handle_shell,0);
+    setin(0,handle_shell);
+    
     while (1)
     {
         __asm__ volatile("hlt"); 

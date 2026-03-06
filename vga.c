@@ -16,6 +16,24 @@ size_t terminal_column;
 uint8_t terminal_color;
 uint16_t* terminal_buffer = (uint16_t*)VGA_MEMORY;
 
+
+
+void vga_set_row(uint16_t row){
+    terminal_row = row;
+}
+
+void vga_set_col(uint16_t col){
+    terminal_column = col;
+}
+
+uint16_t vga_get_col(){
+    return terminal_column;
+}
+
+uint16_t vga_get_row(){
+    return terminal_row;
+}
+
 void vga_move_cursor(uint16_t row, uint16_t col) {
     uint16_t pos = row * VGA_WIDTH + col;
 

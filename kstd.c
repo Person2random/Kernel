@@ -3,24 +3,26 @@
 #include "idt.h"
 #include "vga.h"
 #include "console.h"
+#include "tty.h"
 volatile uint32_t ticks = 0;
 volatile uint8_t waitmode = 0;
 volatile char inputbuf[128] = {};
 volatile uint8_t index = 0;
-typedef void (*out_cb_t)(char *buf);
 uint8_t active_tty = 0;
-volatile out_cb_t callbacks[3];
 
-static out_cb_t out = NULL;
 
-void changeout(out_cb_t cb, size_t index) {
-    if(index < 3)
-    callbacks[index] = cb;
+void* memcpy(void* dst, const void* src, size_t n) {
+    unsigned char* d = dst;
+    const unsigned char* s = src;
+    while (n--) *d++ = *s++;
+    return dst;
 }
 
-void resetout(void) {
-    out = NULL;
+
+void setin(size_t index, in_cb_t cb){
+    ttys[index].cb = cb;
 }
+
 
 
 void* memset(void* dst, int v, size_t n) {
@@ -39,7 +41,7 @@ int strcmp(const char *s1, const char *s2) {
     return (*s1 == 0 && *s2 == 0); // return 1 if both ended
 }
 
-int stoia(const char* buf){
+int stoi(const char* buf){
     int i = 0;
     int num = 0;
     while (buf[i])
@@ -151,27 +153,39 @@ size_t read_ibuf(uint8_t *buf){
     return i;
     
 }
+
 void append_ibuf(uint8_t sc)
 {
     if(sc == 61){
-        terminal_writestring("Switching\n");
-        if(active_tty == 2){
+        save_terminal_state();
+        if(active_tty == 0){
+            active_tty = 19;
+        }
+        else{
+            active_tty--;
+        }
+        load_terminal_state();
+        return;
+    }
+    else if(sc == 62){
+        save_terminal_state();
+        if(active_tty == 19){
             active_tty = 0;
         }
-        else {
+        else{
             active_tty++;
         }
-    }
-    if(callbacks[active_tty] == NULL) return;
+        load_terminal_state();
 
+        return;
+    }
     char ch = scancode_to_ascii[sc];
     
-
     // Enter pressed -> finalize line
     if (ch == '\n') {
         terminal_writestring("\n");
-
-        callbacks[active_tty](inputbuf);
+        if(ttys[active_tty].cb == NULL) return;
+        ttys[active_tty].cb(inputbuf);
 
         memset(inputbuf, 0, 128);
         index = 0;
@@ -204,12 +218,6 @@ void append_ibuf(uint8_t sc)
 
 
 
-void* memcpy(void* dst, const void* src, size_t n) {
-    unsigned char* d = dst;
-    const unsigned char* s = src;
-    while (n--) *d++ = *s++;
-    return dst;
-}
 
 
 

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
+#include "tty.h"
 #ifndef KSTD_H
 #define KSTD_H
 int strcmp(const char *s1, const char *s2);
@@ -16,8 +17,8 @@ void outb(uint16_t port, uint8_t val);
 uint8_t inb(uint16_t port);
 void set_kernel_stack();
 void panic(const char *msg) __attribute__((noreturn));
-void changeout(void (*cb)(char* buf),size_t index);
+void setin(size_t index, in_cb_t cb);
 int split(char* str, char delimiter, char* tokens[], int max_tokens);
-int stoia(char *buf);
-extern uint8_t active_tty;
+int stoi(char *buf);
+extern volatile char inputbuf[128];
 #endif
