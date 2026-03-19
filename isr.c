@@ -4,6 +4,7 @@
 #include "kstd.h"
 #include "paging.h"
 #include "pmm.h"
+#include "tty.h"
 // Declare all 32 ISR stubs from your assembly file
 extern void isr0(void);
 extern void isr1(void);

@@ -60,7 +60,9 @@ void kernel_main(uint32_t magic, void* mb_info){
     uint32_t* heap_test = (uint32_t*)0x40000000;
     *heap_test = 1234;
     terminal_writestring("Heap page allocated\n");
+    ttys_initialize();
     setin(0,handle_shell);
+    ttyprint("Hello world at 2",2);
     
     while (1)
     {

@@ -8,7 +8,6 @@ extern volatile uint32_t ticks;
 extern volatile uint8_t waitmode;
 size_t strlen(const char* str);
 size_t readbuf(uint8_t *buf);
-void append_ibuf(uint8_t c);
 void* memset(void* dst, int v, size_t n);
 void* memcpy(void* dst, const void* src, size_t n);
 void kwait(int seconds);
@@ -21,4 +20,5 @@ void setin(size_t index, in_cb_t cb);
 int split(char* str, char delimiter, char* tokens[], int max_tokens);
 int stoi(char *buf);
 extern volatile char inputbuf[128];
+extern const char scancode_to_ascii[128];
 #endif

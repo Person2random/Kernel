@@ -7,8 +7,6 @@
 volatile uint32_t ticks = 0;
 volatile uint8_t waitmode = 0;
 volatile char inputbuf[128] = {};
-volatile uint8_t index = 0;
-uint8_t active_tty = 0;
 
 
 void* memcpy(void* dst, const void* src, size_t n) {
@@ -141,84 +139,6 @@ size_t strlen(const char* str) {
     }
     return len;
 }
-
-size_t read_ibuf(uint8_t *buf){
-    size_t len = strlen(inputbuf);
-    size_t i = 0;
-    while(i < len)
-    {
-        buf[i] = inputbuf[i];
-        i++;
-    }
-    return i;
-    
-}
-
-void append_ibuf(uint8_t sc)
-{
-    if(sc == 61){
-        save_terminal_state();
-        if(active_tty == 0){
-            active_tty = 19;
-        }
-        else{
-            active_tty--;
-        }
-        load_terminal_state();
-        return;
-    }
-    else if(sc == 62){
-        save_terminal_state();
-        if(active_tty == 19){
-            active_tty = 0;
-        }
-        else{
-            active_tty++;
-        }
-        load_terminal_state();
-
-        return;
-    }
-    char ch = scancode_to_ascii[sc];
-    
-    // Enter pressed -> finalize line
-    if (ch == '\n') {
-        terminal_writestring("\n");
-        if(ttys[active_tty].cb == NULL) return;
-        ttys[active_tty].cb(inputbuf);
-
-        memset(inputbuf, 0, 128);
-        index = 0;
-        return;
-    }
-
-    // Backspace (scancode 14 is typical for PS/2 set 1)
-    if (sc == 14) {
-        if (index > 0) {
-            index--;
-            inputbuf[index] = 0;
-            terminal_removechar();   // assumes this erases last char on screen
-        }
-        return;
-    }
-
-    // Normal character append
-    if (index < 127) { // keep room for '\0'
-        inputbuf[index++] = ch;
-        inputbuf[index] = 0;        // keep it a valid C-string
-        terminal_putchar(ch);
-    } else {
-        // overflow policy: reset (your choice)
-        memset(inputbuf, 0, 128);
-        index = 0;
-    }
-}
-
-
-
-
-
-
 
 
 //Depends on waitmode.
