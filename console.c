@@ -1,5 +1,6 @@
 #include "kstd.h"
 #include "vga.h"
+#include "paging.h"
 extern uint8_t _kernel_end[];
 extern uint8_t _kernel_start[];
 
@@ -51,6 +52,11 @@ void handle_shell(char *input){
         return;
     }
     
+    if (count > 1 && strcmp(tokens[0], "wait")){
+        int time = stoia(tokens[1]);  
+        kwait(time); 
+        return;
+    }
 
     
     terminal_writestring("Invalid command\n");
