@@ -14,8 +14,8 @@ void handle_shell(char *input){
         terminal_writestring("Hello, World\n");
         return;
     }
-    if(strcmp(buf,"yousef")){
-        terminal_writestring("Yousef is 5awal and metnak\n");
+    if(strcmp(buf,"adham")){
+        terminal_writestring("Adham is 5awal and metnak\n");
         return;
     }
     if(strcmp(buf,"ksize")){
