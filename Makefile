@@ -3,7 +3,6 @@ default:
 	make build
 	make run
 	make clean
-
 build:
 	i686-elf-as boot.s -o boot.o
 	i686-elf-as -32 gdtflush.s -o gdtflush.o
@@ -33,3 +32,9 @@ run:
 	qemu-system-i386 -cdrom myos.iso
 clean:
 	rm -rf boot.o isodir kernel.o myos myos.iso	terminal.o gdt.o gdtflush.o loadidt.o isr0.o idt.o isr.o irq.o kstd.o console.o paging.o pmm.o
+
+install:
+	brew install i686-elf-gcc
+	sudo apt-get update
+	sudo apt-get install qemu-system-x86
+	sudo apt install grub2-common xorriso grub-pc-bin

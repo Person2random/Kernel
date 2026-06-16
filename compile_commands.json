@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "/home/goat/kernel/Kernel",
+    "command": "i686-elf-gcc -ffreestanding -m32 -c kernel.c",
+    "file": "kernel.c"
+  }
+]
