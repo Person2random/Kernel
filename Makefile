@@ -3,6 +3,7 @@ default:
 	make build
 	make run
 	make clean
+
 build:
 	i686-elf-as boot.s -o boot.o
 	i686-elf-as -32 gdtflush.s -o gdtflush.o
@@ -26,15 +27,29 @@ build:
 	mkdir -p isodir/boot/grub
 	cp myos isodir/boot/myos
 	cp grub.cfg isodir/boot/grub/grub.cfg
-	grub-mkrescue -o myos.iso isodir
+	# Copy Limine vendored files into the ISO tree
+	mkdir -p isodir/boot/limine
+	cp limine/limine-cd.bin isodir/boot/limine/limine-cd.bin
+	cp limine/limine.sys isodir/boot/limine/limine.sys
+
+	# Build an ISO that boots with Limine (BIOS/legacy). Uses xorriso in mkisofs emulation mode.
+	xorriso -as mkisofs -o myos.iso \
+		-isohybrid-mbr limine/limine.sys \
+		-c boot.cat \
+		-b boot/limine/limine-cd.bin \
+		-no-emul-boot \
+		-boot-load-size 4 \
+		-boot-info-table \
+		isodir
 
 run:
-	qemu-system-i386 -cdrom myos.iso
+	qemu-system-i386 -cdrom myos.iso -serial stdio
+
 clean:
 	rm -rf boot.o isodir kernel.o myos myos.iso	terminal.o gdt.o gdtflush.o loadidt.o isr0.o idt.o isr.o irq.o kstd.o console.o paging.o pmm.o
 
 install:
-	brew install i686-elf-gcc
-	sudo apt-get update
-	sudo apt-get install qemu-system-x86
-	sudo apt install grub2-common xorriso grub-pc-bin
+	brew install i686-elf-gcc || true
+	sudo apt-get update || true
+	sudo apt-get install -y qemu-system-x86 || true
+	sudo apt install -y grub2-common xorriso grub-pc-bin unzip curl || true
